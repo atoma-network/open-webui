@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { getContext } from 'svelte';
 	import Modal from '../common/Modal.svelte';
+	import { user } from '$lib/stores';
 
 	const i18n = getContext('i18n');
 
@@ -166,6 +167,7 @@
 						</div>
 					</div>
 
+					{#if $user.role === 'admin'}
 					<div class="w-full flex justify-between items-center">
 						<div class=" text-sm">{$i18n.t('Delete chat')}</div>
 
@@ -188,6 +190,7 @@
 							</div>
 						</div>
 					</div>
+					{/if}
 
 					<div class="w-full flex justify-between items-center">
 						<div class=" text-sm">{$i18n.t('Show shortcuts')}</div>

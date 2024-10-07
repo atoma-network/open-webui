@@ -16,6 +16,7 @@
 	import Bookmark from '$lib/components/icons/Bookmark.svelte';
 	import BookmarkSlash from '$lib/components/icons/BookmarkSlash.svelte';
 	import { addTagById, deleteTagById, getTagsById } from '$lib/apis/chats';
+	import { user } from '$lib/stores';
 
 	const i18n = getContext('i18n');
 
@@ -128,6 +129,7 @@
 				<div class="flex items-center">{$i18n.t('Share')}</div>
 			</DropdownMenu.Item>
 
+			{#if $user.role === 'admin'}
 			<DropdownMenu.Item
 				class="flex  gap-2  items-center px-3 py-2 text-sm  font-medium cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md"
 				on:click={() => {
@@ -137,6 +139,7 @@
 				<GarbageBin strokeWidth="2" />
 				<div class="flex items-center">{$i18n.t('Delete')}</div>
 			</DropdownMenu.Item>
+			{/if}
 
 			<hr class="border-gray-100 dark:border-gray-800 mt-2.5 mb-1.5" />
 
