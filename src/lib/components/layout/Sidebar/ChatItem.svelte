@@ -2,6 +2,7 @@
 	import { toast } from 'svelte-sonner';
 	import { goto, invalidate, invalidateAll } from '$app/navigation';
 	import { onMount, getContext, createEventDispatcher, tick } from 'svelte';
+	import { user } from '$lib/stores';
 	const i18n = getContext('i18n');
 
 	const dispatch = createEventDispatcher();
@@ -219,6 +220,7 @@
 					</button>
 				</Tooltip>
 
+				{#if $user.role === 'admin'}
 				<Tooltip content={$i18n.t('Delete')}>
 					<button
 						class=" self-center dark:hover:text-white transition"
@@ -230,6 +232,7 @@
 						<GarbageBin strokeWidth="2" />
 					</button>
 				</Tooltip>
+				{/if}
 			</div>
 		{:else}
 			<div class="flex self-center space-x-1 z-10">

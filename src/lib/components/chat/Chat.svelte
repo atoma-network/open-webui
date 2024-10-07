@@ -1995,6 +1995,7 @@
 									{mergeResponses}
 									{chatActionHandler}
 									bottomPadding={files.length > 0}
+									readOnly={$user?.role !== 'admin'}
 									on:submit={async (e) => {
 										if (e.detail) {
 											// New user message

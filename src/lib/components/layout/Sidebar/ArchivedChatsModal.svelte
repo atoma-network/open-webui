@@ -15,6 +15,7 @@
 		getArchivedChatList
 	} from '$lib/apis/chats';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
+	import { user } from '$lib/stores';
 
 	const i18n = getContext('i18n');
 
@@ -169,7 +170,7 @@
 																</svg>
 															</button>
 														</Tooltip>
-
+														{#if $user.role === 'admin'}
 														<Tooltip content="Delete Chat">
 															<button
 																class="self-center w-fit text-sm px-2 py-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"
@@ -193,6 +194,7 @@
 																</svg>
 															</button>
 														</Tooltip>
+														{/if}
 													</div>
 												</td>
 											</tr>

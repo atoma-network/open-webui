@@ -304,6 +304,7 @@
 					</div>
 				</div>
 			{:else}
+				{#if $user.role === 'admin'}
 				<button
 					class=" flex rounded-md py-2 px-3.5 w-full hover:bg-gray-200 dark:hover:bg-gray-800 transition"
 					on:click={() => {
@@ -326,6 +327,7 @@
 					</div>
 					<div class=" self-center text-sm font-medium">{$i18n.t('Delete All Chats')}</div>
 				</button>
+				{/if}
 			{/if}
 		</div>
 	</div>

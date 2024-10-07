@@ -164,11 +164,13 @@
 					document.getElementById('sidebar-toggle-button')?.click();
 				}
 
+				if ($user.role === 'admin') {
 				// Check if Ctrl + Shift + Backspace is pressed
 				if (isCtrlPressed && isShiftPressed && event.key === 'Backspace') {
 					event.preventDefault();
 					console.log('deleteChat');
 					document.getElementById('delete-chat-button')?.click();
+				}
 				}
 
 				// Check if Ctrl + . is pressed
