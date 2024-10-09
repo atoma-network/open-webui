@@ -6,11 +6,6 @@ services:
     image: ghcr.io/berriai/litellm:main-latest
     volumes:
       - ./litellm_config.yaml:/app/config.yaml
-    environment:
-      - DATABASE_URL=""
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-      - AWS_REGION_NAME=${AWS_REGION_NAME}
     ports:
       - '4000:4000'
     command: --config /app/config.yaml --detailed_debug
@@ -22,9 +17,7 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - open-webui:/app/backend/data
-    environment:
-      - DATABASE_URL=${DATABASE_URL}
+      - ./backend/data:/app/backend/data
     ports:
       - '${OPEN_WEBUI_PORT-3000}:8080'
     depends_on:
@@ -35,4 +28,3 @@ services:
 
 volumes:
   litellm: {}
-  open-webui: {}
