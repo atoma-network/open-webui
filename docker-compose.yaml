@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   litellm:
-    env_file: .env
+    env_file: .env.litellm
     image: ghcr.io/berriai/litellm:main-latest
     volumes:
       - ./litellm_config.yaml:/app/config.yaml
@@ -17,7 +17,7 @@ services:
     restart: unless-stopped
 
   openwebui:
-    env_file: .env
+    env_file: .env.openwebui
     build:
       context: .
       dockerfile: Dockerfile

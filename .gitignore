@@ -133,6 +133,8 @@ celerybeat.pid
 
 # Environments
 .env
+.env.openwebui
+.env.litellm
 .venv
 env/
 venv/
