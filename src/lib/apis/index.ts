@@ -680,6 +680,20 @@ export const getBackendConfig = async () => {
 			return null;
 		});
 
+	return {
+		status: true,
+		name: 'Open WebUI',
+		version: '0.3.32',
+		default_locale: '',
+		oauth: { providers: {} },
+		features: {
+			auth: true,
+			auth_trusted_header: false,
+			enable_signup: true,
+			enable_login_form: true
+		}
+	};
+
 	if (error) {
 		throw error;
 	}
