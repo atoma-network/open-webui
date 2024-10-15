@@ -316,7 +316,7 @@
 		</div>
 	{/if}
 
-	{#if $config?.features.enable_community_sharing}
+	<!-- {#if $config?.features.enable_community_sharing}
 		<div class=" my-16">
 			<div class=" text-xl font-medium mb-1 line-clamp-1">
 				{$i18n.t('Made by OpenWebUI Community')}
@@ -346,4 +346,4 @@
 	<div class="w-full h-full flex justify-center items-center">
 		<Spinner />
 	</div>
-{/if}
+{/if} -->
