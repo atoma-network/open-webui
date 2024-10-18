@@ -2070,17 +2070,13 @@ async def get_app_config(request: Request):
         "name": WEBUI_NAME,
         "version": VERSION,
         "default_locale": str(DEFAULT_LOCALE),
-        "oauth": {
-            "providers": {
-                name: config.get("name", name)
-                for name, config in OAUTH_PROVIDERS.items()
-            }
-        },
+        "oauth": {"providers": {name: config.get("name", name) for name, config in OAUTH_PROVIDERS.items()}},
         "features": {
             "auth": WEBUI_AUTH,
             "auth_trusted_header": bool(webui_app.state.AUTH_TRUSTED_EMAIL_HEADER),
             "enable_signup": webui_app.state.config.ENABLE_SIGNUP,
             "enable_login_form": webui_app.state.config.ENABLE_LOGIN_FORM,
+            "enable_sui_login": webui_app.state.config.ENABLE_SUI_LOGIN,
             **(
                 {
                     "enable_web_search": retrieval_app.state.config.ENABLE_RAG_WEB_SEARCH,
@@ -2226,8 +2222,8 @@ if len(OAUTH_PROVIDERS) > 0:
     )
 
 
-@app.get("/oauth/{provider}/login")
-async def oauth_login(provider: str, request: Request):
+@app.get("/oauth/{provider}/login/{nonce}")
+async def oauth_login(provider: str, nonce: str, request: Request):
     if provider not in OAUTH_PROVIDERS:
         raise HTTPException(404)
     # If the provider has a custom redirect URL, use that, otherwise automatically generate one
@@ -2237,7 +2233,7 @@ async def oauth_login(provider: str, request: Request):
     client = oauth.create_client(provider)
     if client is None:
         raise HTTPException(404)
-    return await client.authorize_redirect(request, redirect_uri)
+    return await client.authorize_redirect(request, redirect_uri, nonce=nonce)
 
 
 # OAuth login logic is as follows:
@@ -2253,6 +2249,7 @@ async def oauth_callback(provider: str, request: Request, response: Response):
     client = oauth.create_client(provider)
     try:
         token = await client.authorize_access_token(request)
+        id_token = token["id_token"]
     except Exception as e:
         log.warning(f"OAuth callback error: {e}")
         raise HTTPException(400, detail=ERROR_MESSAGES.INVALID_CRED)
@@ -2356,7 +2353,7 @@ async def oauth_callback(provider: str, request: Request, response: Response):
     )
 
     # Redirect back to the frontend with the JWT token
-    redirect_url = f"{request.base_url}auth#token={jwt_token}"
+    redirect_url = f"http://localhost:5173/auth#token={jwt_token}&id_token={id_token}"
     return RedirectResponse(url=redirect_url)
 
 

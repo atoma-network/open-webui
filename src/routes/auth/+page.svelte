@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { goto } from '$app/navigation';
 	import { getSessionUser, userSignIn, userSignUp } from '$lib/apis/auths';
 	import Spinner from '$lib/components/common/Spinner.svelte';
@@ -9,6 +9,8 @@
 	import { generateInitialsImage, canvasPixelTest } from '$lib/utils';
 	import { page } from '$app/stores';
 	import { getBackendConfig } from '$lib/apis';
+	import { renderSuiConnectButton } from '$lib/apis/atoma/react';
+	import { prepare, receiveToken } from '$lib/apis/atoma/zklogin';
 
 	const i18n = getContext('i18n');
 
@@ -72,7 +74,8 @@
 		}
 		const params = new URLSearchParams(hash);
 		const token = params.get('token');
-		if (!token) {
+		const idToken = params.get('id_token');
+		if (!token || !idToken) {
 			return;
 		}
 		const sessionUser = await getSessionUser(token).catch((error) => {
@@ -83,8 +86,66 @@
 			return;
 		}
 		localStorage.token = token;
+		await receiveToken(idToken);
 		await setSessionUser(sessionUser);
 	};
+
+	let reactRootRef: HTMLElement;
+
+	let suiCurrentWallet = null;
+	let suiConnectionStatus = 'disconnected';
+	let suiSignPersonalMessage = null;
+	let suiSignAndExecuteTransaction = null;
+
+	const walletCallback = (
+		currentWallet: import('@mysten/wallet-standard').WalletWithRequiredFeatures,
+		connectionStatus: 'connecting' | 'disconnected' | 'connected',
+		signPersonalMessage: any,
+		signAndExecuteTransaction: any
+	) => {
+		suiCurrentWallet = currentWallet;
+		suiConnectionStatus = connectionStatus;
+		suiSignPersonalMessage = signPersonalMessage;
+		suiSignAndExecuteTransaction = signAndExecuteTransaction;
+		if (suiSignPersonalMessage && currentWallet?.accounts?.length > 0) {
+			suiSignPersonalMessage(
+				{ message: new TextEncoder().encode('Welcome to Atoma') },
+				{
+					onSuccess: async (result: any) => {
+						let name = 'Atoma User ' + currentWallet.accounts[0].address;
+						let email = result.signature + '@atoma.user';
+						let password = result.signature;
+						let sessionUser: any;
+						try {
+							sessionUser = await userSignIn(email, password);
+							if (sessionUser === null) {
+								sessionUser = await userSignUp(name, email, password, generateInitialsImage(name));
+							}
+						} catch (error) {
+							try {
+								sessionUser = await userSignUp(name, email, password, generateInitialsImage(name));
+							} catch (error) {
+								console.error(error);
+								return;
+							}
+						}
+						setSessionUser(sessionUser);
+					}
+				}
+			);
+		}
+	};
+
+	const initSui = () => {
+		renderSuiConnectButton(
+			reactRootRef,
+			false,
+			walletCallback,
+			$i18n.t('Continue with {{provider}}', { provider: 'Sui' })
+		);
+	};
+
+	let nonce : string;
 
 	onMount(async () => {
 		if ($user !== undefined) {
@@ -95,7 +156,10 @@
 		if (($config?.features.auth_trusted_header ?? false) || $config?.features.auth === false) {
 			await signInHandler();
 		}
-	});
+		setTimeout(initSui, 0);
+	  nonce = await prepare();
+});
+
 </script>
 
 <svelte:head>
@@ -254,6 +318,10 @@
 						{/if}
 					</form>
 
+					{#if $config?.features.enable_sui_login}
+						<div id="react-root" bind:this={reactRootRef} />
+					{/if}
+
 					{#if Object.keys($config?.oauth?.providers ?? {}).length > 0}
 						<div class="inline-flex items-center justify-center w-full">
 							<hr class="w-64 h-px my-8 bg-gray-200 border-0 dark:bg-gray-700" />
@@ -269,7 +337,7 @@
 								<button
 									class="flex items-center px-6 border-2 dark:border-gray-800 duration-300 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 w-full rounded-2xl dark:text-white text-sm py-3 transition"
 									on:click={() => {
-										window.location.href = `${WEBUI_BASE_URL}/oauth/google/login`;
+										window.location.href = `${WEBUI_BASE_URL}/oauth/google/login/${nonce}`;
 									}}
 								>
 									<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" class="size-6 mr-3">
