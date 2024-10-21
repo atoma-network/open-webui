@@ -15,6 +15,7 @@
 
 	import Spinner from '$lib/components/common/Spinner.svelte';
 	import OnBoarding from '$lib/components/OnBoarding.svelte';
+	import { renderSuiConnectButton } from '$lib/apis/atoma/react';
 
 	const i18n = getContext('i18n');
 
@@ -106,6 +107,60 @@
 	};
 
 	let onboarding = false;
+	let reactRootRef: HTMLElement;
+
+	let suiCurrentWallet = null;
+	let suiConnectionStatus = 'disconnected';
+	let suiSignPersonalMessage = null;
+	let suiSignAndExecuteTransaction = null;
+
+	const walletCallback = (
+		currentWallet: import('@mysten/wallet-standard').WalletWithRequiredFeatures,
+		connectionStatus: 'connecting' | 'disconnected' | 'connected',
+		signPersonalMessage: any,
+		signAndExecuteTransaction: any
+	) => {
+		suiCurrentWallet = currentWallet;
+		suiConnectionStatus = connectionStatus;
+		suiSignPersonalMessage = signPersonalMessage;
+		suiSignAndExecuteTransaction = signAndExecuteTransaction;
+		if (suiSignPersonalMessage && currentWallet?.accounts?.length > 0) {
+			suiSignPersonalMessage(
+				{ message: new TextEncoder().encode('Welcome to Atoma') },
+				{
+					onSuccess: async (result: any) => {
+						let name = 'Atoma User ' + currentWallet.accounts[0].address;
+						let email = result.signature + '@atoma.user';
+						let password = result.signature;
+						let sessionUser: any;
+						try {
+							sessionUser = await userSignIn(email, password);
+							if (sessionUser === null) {
+								sessionUser = await userSignUp(name, email, password, generateInitialsImage(name));
+							}
+						} catch (error) {
+							try {
+								sessionUser = await userSignUp(name, email, password, generateInitialsImage(name));
+							} catch (error) {
+								console.error(error);
+								return;
+							}
+						}
+						setSessionUser(sessionUser);
+					}
+				}
+			);
+		}
+	};
+
+	const initSui = () => {
+		renderSuiConnectButton(
+			reactRootRef,
+			false,
+			walletCallback,
+			$i18n.t('Continue with {{provider}}', { provider: 'Sui' })
+		);
+	};
 
 	onMount(async () => {
 		if ($user !== undefined) {
@@ -119,6 +174,7 @@
 		} else {
 			onboarding = $config?.onboarding ?? false;
 		}
+		setTimeout(initSui, 0);
 	});
 </script>
 

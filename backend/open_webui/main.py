@@ -399,9 +399,7 @@ app.state.config.ENABLE_SIGNUP = ENABLE_SIGNUP
 app.state.config.ENABLE_LOGIN_FORM = ENABLE_LOGIN_FORM
 
 app.state.config.ENABLE_API_KEY = ENABLE_API_KEY
-app.state.config.ENABLE_API_KEY_ENDPOINT_RESTRICTIONS = (
-    ENABLE_API_KEY_ENDPOINT_RESTRICTIONS
-)
+app.state.config.ENABLE_API_KEY_ENDPOINT_RESTRICTIONS = ENABLE_API_KEY_ENDPOINT_RESTRICTIONS
 app.state.config.API_KEY_ALLOWED_ENDPOINTS = API_KEY_ALLOWED_ENDPOINTS
 
 app.state.config.JWT_EXPIRES_IN = JWT_EXPIRES_IN
@@ -471,9 +469,7 @@ app.state.config.FILE_MAX_SIZE = RAG_FILE_MAX_SIZE
 app.state.config.FILE_MAX_COUNT = RAG_FILE_MAX_COUNT
 
 app.state.config.ENABLE_RAG_HYBRID_SEARCH = ENABLE_RAG_HYBRID_SEARCH
-app.state.config.ENABLE_RAG_WEB_LOADER_SSL_VERIFICATION = (
-    ENABLE_RAG_WEB_LOADER_SSL_VERIFICATION
-)
+app.state.config.ENABLE_RAG_WEB_LOADER_SSL_VERIFICATION = ENABLE_RAG_WEB_LOADER_SSL_VERIFICATION
 
 app.state.config.CONTENT_EXTRACTION_ENGINE = CONTENT_EXTRACTION_ENGINE
 app.state.config.TIKA_SERVER_URL = TIKA_SERVER_URL
@@ -554,16 +550,8 @@ app.state.EMBEDDING_FUNCTION = get_embedding_function(
     app.state.config.RAG_EMBEDDING_ENGINE,
     app.state.config.RAG_EMBEDDING_MODEL,
     app.state.ef,
-    (
-        app.state.config.RAG_OPENAI_API_BASE_URL
-        if app.state.config.RAG_EMBEDDING_ENGINE == "openai"
-        else app.state.config.RAG_OLLAMA_BASE_URL
-    ),
-    (
-        app.state.config.RAG_OPENAI_API_KEY
-        if app.state.config.RAG_EMBEDDING_ENGINE == "openai"
-        else app.state.config.RAG_OLLAMA_API_KEY
-    ),
+    (app.state.config.RAG_OPENAI_API_BASE_URL if app.state.config.RAG_EMBEDDING_ENGINE == "openai" else app.state.config.RAG_OLLAMA_BASE_URL),
+    (app.state.config.RAG_OPENAI_API_KEY if app.state.config.RAG_EMBEDDING_ENGINE == "openai" else app.state.config.RAG_OLLAMA_API_KEY),
     app.state.config.RAG_EMBEDDING_BATCH_SIZE,
 )
 
@@ -647,20 +635,12 @@ app.state.config.ENABLE_TAGS_GENERATION = ENABLE_TAGS_GENERATION
 
 app.state.config.TITLE_GENERATION_PROMPT_TEMPLATE = TITLE_GENERATION_PROMPT_TEMPLATE
 app.state.config.TAGS_GENERATION_PROMPT_TEMPLATE = TAGS_GENERATION_PROMPT_TEMPLATE
-app.state.config.IMAGE_PROMPT_GENERATION_PROMPT_TEMPLATE = (
-    IMAGE_PROMPT_GENERATION_PROMPT_TEMPLATE
-)
+app.state.config.IMAGE_PROMPT_GENERATION_PROMPT_TEMPLATE = IMAGE_PROMPT_GENERATION_PROMPT_TEMPLATE
 
-app.state.config.TOOLS_FUNCTION_CALLING_PROMPT_TEMPLATE = (
-    TOOLS_FUNCTION_CALLING_PROMPT_TEMPLATE
-)
+app.state.config.TOOLS_FUNCTION_CALLING_PROMPT_TEMPLATE = TOOLS_FUNCTION_CALLING_PROMPT_TEMPLATE
 app.state.config.QUERY_GENERATION_PROMPT_TEMPLATE = QUERY_GENERATION_PROMPT_TEMPLATE
-app.state.config.AUTOCOMPLETE_GENERATION_PROMPT_TEMPLATE = (
-    AUTOCOMPLETE_GENERATION_PROMPT_TEMPLATE
-)
-app.state.config.AUTOCOMPLETE_GENERATION_INPUT_MAX_LENGTH = (
-    AUTOCOMPLETE_GENERATION_INPUT_MAX_LENGTH
-)
+app.state.config.AUTOCOMPLETE_GENERATION_PROMPT_TEMPLATE = AUTOCOMPLETE_GENERATION_PROMPT_TEMPLATE
+app.state.config.AUTOCOMPLETE_GENERATION_INPUT_MAX_LENGTH = AUTOCOMPLETE_GENERATION_INPUT_MAX_LENGTH
 
 
 ########################################
@@ -716,10 +696,7 @@ async def check_url(request: Request, call_next):
 
 @app.middleware("http")
 async def inspect_websocket(request: Request, call_next):
-    if (
-        "/ws/socket.io" in request.url.path
-        and request.query_params.get("transport") == "websocket"
-    ):
+    if "/ws/socket.io" in request.url.path and request.query_params.get("transport") == "websocket":
         upgrade = (request.headers.get("Upgrade") or "").lower()
         connection = (request.headers.get("Connection") or "").lower().split(",")
         # Check that there's the correct headers for an upgrade, else reject the connection
@@ -773,9 +750,7 @@ app.include_router(folders.router, prefix="/api/v1/folders", tags=["folders"])
 app.include_router(groups.router, prefix="/api/v1/groups", tags=["groups"])
 app.include_router(files.router, prefix="/api/v1/files", tags=["files"])
 app.include_router(functions.router, prefix="/api/v1/functions", tags=["functions"])
-app.include_router(
-    evaluations.router, prefix="/api/v1/evaluations", tags=["evaluations"]
-)
+app.include_router(evaluations.router, prefix="/api/v1/evaluations", tags=["evaluations"])
 app.include_router(utils.router, prefix="/api/v1/utils", tags=["utils"])
 
 
@@ -795,18 +770,14 @@ async def get_models(request: Request, user=Depends(get_verified_user)):
                 if has_access(
                     user.id,
                     type="read",
-                    access_control=model.get("info", {})
-                    .get("meta", {})
-                    .get("access_control", {}),
+                    access_control=model.get("info", {}).get("meta", {}).get("access_control", {}),
                 ):
                     filtered_models.append(model)
                 continue
 
             model_info = Models.get_model_by_id(model["id"])
             if model_info:
-                if user.id == model_info.user_id or has_access(
-                    user.id, type="read", access_control=model_info.access_control
-                ):
+                if user.id == model_info.user_id or has_access(user.id, type="read", access_control=model_info.access_control):
                     filtered_models.append(model)
 
         return filtered_models
@@ -814,27 +785,19 @@ async def get_models(request: Request, user=Depends(get_verified_user)):
     models = await get_all_models(request)
 
     # Filter out filter pipelines
-    models = [
-        model
-        for model in models
-        if "pipeline" not in model or model["pipeline"].get("type", None) != "filter"
-    ]
+    models = [model for model in models if "pipeline" not in model or model["pipeline"].get("type", None) != "filter"]
 
     model_order_list = request.app.state.config.MODEL_ORDER_LIST
     if model_order_list:
         model_order_dict = {model_id: i for i, model_id in enumerate(model_order_list)}
         # Sort models by order list priority, with fallback for those not in the list
-        models.sort(
-            key=lambda x: (model_order_dict.get(x["id"], float("inf")), x["name"])
-        )
+        models.sort(key=lambda x: (model_order_dict.get(x["id"], float("inf")), x["name"]))
 
     # Filter out models that the user does not have access to
     if user.role == "user" and not BYPASS_MODEL_ACCESS_CONTROL:
         models = get_filtered_models(models, user)
 
-    log.debug(
-        f"/api/models returned filtered models accessible to the user: {json.dumps([model['id'] for model in models])}"
-    )
+    log.debug(f"/api/models returned filtered models accessible to the user: {json.dumps([model['id'] for model in models])}")
     return {"data": models}
 
 
@@ -878,9 +841,7 @@ async def chat_completion(
         }
         form_data["metadata"] = metadata
 
-        form_data, events = await process_chat_payload(
-            request, form_data, metadata, user, model
-        )
+        form_data, events = await process_chat_payload(request, form_data, metadata, user, model)
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -889,9 +850,7 @@ async def chat_completion(
 
     try:
         response = await chat_completion_handler(request, form_data, user)
-        return await process_chat_response(
-            request, response, form_data, user, events, metadata, tasks
-        )
+        return await process_chat_response(request, response, form_data, user, events, metadata, tasks)
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -905,9 +864,7 @@ generate_chat_completion = chat_completion
 
 
 @app.post("/api/chat/completed")
-async def chat_completed(
-    request: Request, form_data: dict, user=Depends(get_verified_user)
-):
+async def chat_completed(request: Request, form_data: dict, user=Depends(get_verified_user)):
     try:
         return await chat_completed_handler(request, form_data, user)
     except Exception as e:
@@ -918,9 +875,7 @@ async def chat_completed(
 
 
 @app.post("/api/chat/actions/{action_id}")
-async def chat_action(
-    request: Request, action_id: str, form_data: dict, user=Depends(get_verified_user)
-):
+async def chat_action(request: Request, action_id: str, form_data: dict, user=Depends(get_verified_user)):
     try:
         return await chat_action_handler(request, action_id, form_data, user)
     except Exception as e:
@@ -978,12 +933,7 @@ async def get_app_config(request: Request):
         "name": WEBUI_NAME,
         "version": VERSION,
         "default_locale": str(DEFAULT_LOCALE),
-        "oauth": {
-            "providers": {
-                name: config.get("name", name)
-                for name, config in OAUTH_PROVIDERS.items()
-            }
-        },
+        "oauth": {"providers": {name: config.get("name", name) for name, config in OAUTH_PROVIDERS.items()}},
         "features": {
             "auth": WEBUI_AUTH,
             "auth_trusted_header": bool(app.state.AUTH_TRUSTED_EMAIL_HEADER),
@@ -992,6 +942,7 @@ async def get_app_config(request: Request):
             "enable_signup": app.state.config.ENABLE_SIGNUP,
             "enable_login_form": app.state.config.ENABLE_LOGIN_FORM,
             "enable_websocket": ENABLE_WEBSOCKET_SUPPORT,
+            "enable_sui_login": app.state.config.ENABLE_SUI_LOGIN,
             **(
                 {
                     "enable_channels": app.state.config.ENABLE_CHANNELS,
@@ -1065,16 +1016,12 @@ async def get_app_version():
 @app.get("/api/version/updates")
 async def get_app_latest_release_version():
     if OFFLINE_MODE:
-        log.debug(
-            f"Offline mode is enabled, returning current version as latest version"
-        )
+        log.debug(f"Offline mode is enabled, returning current version as latest version")
         return {"current": VERSION, "latest": VERSION}
     try:
         timeout = aiohttp.ClientTimeout(total=1)
         async with aiohttp.ClientSession(timeout=timeout, trust_env=True) as session:
-            async with session.get(
-                "https://api.github.com/repos/open-webui/open-webui/releases/latest"
-            ) as response:
+            async with session.get("https://api.github.com/repos/open-webui/open-webui/releases/latest") as response:
                 response.raise_for_status()
                 data = await response.json()
                 latest_version = data["tag_name"]
@@ -1198,6 +1145,4 @@ if os.path.exists(FRONTEND_BUILD_DIR):
         name="spa-static-files",
     )
 else:
-    log.warning(
-        f"Frontend build directory not found at '{FRONTEND_BUILD_DIR}'. Serving API only."
-    )
+    log.warning(f"Frontend build directory not found at '{FRONTEND_BUILD_DIR}'. Serving API only.")

@@ -200,6 +200,7 @@ type Config = {
 		enable_api_key: boolean;
 		enable_signup: boolean;
 		enable_login_form: boolean;
+		enable_sui_login: boolean;
 		enable_web_search?: boolean;
 		enable_google_drive_integration: boolean;
 		enable_image_generation: boolean;
