@@ -1,7 +1,6 @@
 import { SuiClient } from '@mysten/sui/client';
 import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
 import {
-	genAddressSeed,
 	generateNonce,
 	generateRandomness,
 	getExtendedEphemeralPublicKey,
@@ -17,9 +16,11 @@ const LOCAL_STORAGE_MAX_EPOCH = 'ZKLOGIN-MAX_EPOCH';
 const LOCAL_STORAGE_ZK_ADDRESS = 'ZKLOGIN-ZK_ADDRESS';
 // const LOCAL_STORAGE_ID_TOKEN = 'ZKLOGIN'-ID_TOKEN';
 const LOCAL_STORAGE_ZKP = 'ZKLOGIN-ZKP';
+const SUI_RPC_URL = import.meta.env.VITE_SUI_RPC_URL;
+const PROVER_URL = import.meta.env.VITE_PROVER_URL;
 
 const suiClient = new SuiClient({
-	url: 'https://api.shinami.com:443/node/v1/sui_testnet_e82cc48bea6170db8d058710bb4c10fa'
+	url: SUI_RPC_URL
 });
 
 type PartialZkLoginSignature = Omit<
@@ -71,8 +72,7 @@ export async function receiveToken(idToken: string) {
 	}
 
 	const extendedEphemeralPublicKey = getExtendedEphemeralPublicKey(ephemeralKeyPair.getPublicKey());
-	console.log('extendedEphemeralPublicKey', extendedEphemeralPublicKey);
-	const response = await fetch('http://localhost:8080/v1', {
+	const response = await fetch(PROVER_URL, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json'
@@ -89,5 +89,4 @@ export async function receiveToken(idToken: string) {
 	const zkProofResult = await response.json();
 	const partialLogin = zkProofResult as PartialZkLoginSignature;
 	localStorage.setItem(LOCAL_STORAGE_ZKP, JSON.stringify(partialLogin));
-	console.log('partialLogin', partialLogin);
 }
