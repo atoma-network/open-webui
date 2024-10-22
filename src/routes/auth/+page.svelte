@@ -16,6 +16,7 @@
 	import Spinner from '$lib/components/common/Spinner.svelte';
 	import OnBoarding from '$lib/components/OnBoarding.svelte';
 	import { renderSuiConnectButton } from '$lib/apis/atoma/react';
+	import { prepare, receiveToken } from '$lib/apis/atoma/zklogin';
 
 	const i18n = getContext('i18n');
 
@@ -92,7 +93,8 @@
 		}
 		const params = new URLSearchParams(hash);
 		const token = params.get('token');
-		if (!token) {
+		const idToken = params.get('id_token');
+		if (!token || !idToken) {
 			return;
 		}
 		const sessionUser = await getSessionUser(token).catch((error) => {
@@ -103,6 +105,7 @@
 			return;
 		}
 		localStorage.token = token;
+		await receiveToken(idToken);
 		await setSessionUser(sessionUser);
 	};
 
@@ -162,6 +165,8 @@
 		);
 	};
 
+	let nonce : string;
+
 	onMount(async () => {
 		if ($user !== undefined) {
 			await goto('/');
@@ -175,7 +180,9 @@
 			onboarding = $config?.onboarding ?? false;
 		}
 		setTimeout(initSui, 0);
-	});
+	  nonce = await prepare();
+});
+
 </script>
 
 <svelte:head>
