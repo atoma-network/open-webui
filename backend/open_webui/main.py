@@ -9,6 +9,7 @@ import sys
 import time
 import uuid
 import asyncio
+import requests
 
 from contextlib import asynccontextmanager
 from typing import Optional
@@ -1380,6 +1381,42 @@ async def chat_action(action_id: str, form_data: dict, user=Depends(get_verified
             )
 
     return data
+
+
+##################################
+#
+# Gas Station
+#
+##################################
+
+
+@app.get("/api/sponsor/{kind}/{sender}")
+async def get_sponsor_signature(kind: str, sender: str):
+    import base64
+
+    # Decode the Base64 string
+    # Add back the missing padding if needed (Base64 length must be a multiple of 4)
+    padding = "=" * (4 - len(kind) % 4)
+    decoded_bytes = base64.urlsafe_b64decode(kind + padding)
+
+    # Convert the decoded bytes back to a list (if needed)
+    decoded_list = list(decoded_bytes)
+
+    url = "https://api.shinami.com/gas/v1"
+    GAS_ACCESS_KEY = "sui_testnet_9af4665a807cc6b010ba1a4ddb638fb4"
+    SENDER_ADDRESS = sender
+    GAS_BUDGET = ""
+    GAS_PRICE = ""
+
+    headers = {"X-API-Key": GAS_ACCESS_KEY, "Content-Type": "application/json"}
+    data = {
+        "jsonrpc": "2.0",
+        "method": "gas_sponsorTransactionBlock",
+        "params": [base64.b64encode(bytes(decoded_list)).decode("utf-8"), SENDER_ADDRESS],
+        "id": 1,
+    }
+    res = requests.post(url, headers=headers, json=data)
+    return res.json()
 
 
 ##################################
