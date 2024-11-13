@@ -404,7 +404,6 @@
 	};
 
 	const initSui = () => {
-		console.log('initSui');
 		renderSuiConnectButton(reactRootRef, true, walletCallback, "");
 	}
 
