@@ -663,6 +663,7 @@
 									}}
 								/>
 
+								<!-- 
 								<div class="self-end mb-2 flex space-x-1 mr-1">
 									{#if !history?.currentId || history.messages[history.currentId]?.done == true}
 										<Tooltip content={$i18n.t('Record voice')}>
@@ -713,11 +714,14 @@
 										</Tooltip>
 									{/if}
 								</div>
+								-->
 							</div>
 						</div>
 						<div class="flex items-end w-10">
 							{#if !history.currentId || history.messages[history.currentId]?.done == true}
 								{#if prompt === ''}
+
+									<!-- 
 									<div class=" flex items-center mb-1">
 										<Tooltip content={$i18n.t('Call')}>
 											<button
@@ -761,7 +765,8 @@
 												<Headphone className="size-6" />
 											</button>
 										</Tooltip>
-									</div>
+									</div> 
+									-->
 								{:else}
 									<div class=" flex items-center mb-1">
 										<Tooltip content={$i18n.t('Send message')}>
