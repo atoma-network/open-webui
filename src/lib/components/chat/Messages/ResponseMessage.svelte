@@ -842,6 +842,7 @@
 									</button>
 								</Tooltip>
 
+								<!-- 
 								<Tooltip content={$i18n.t('Read Aloud')} placement="bottom">
 									<button
 										id="speak-button-{message.id}"
@@ -919,6 +920,7 @@
 										{/if}
 									</button>
 								</Tooltip>
+								-->
 
 								{#if $config?.features.enable_image_generation && ($user.role === 'admin' || $user?.permissions?.features?.image_generation) && !readOnly}
 									<Tooltip content={$i18n.t('Generate Image')} placement="bottom">
