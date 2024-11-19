@@ -703,7 +703,6 @@
 			const userMessageId = uuidv4();
 			const responseMessageId = uuidv4();
 
-
 			const userMessage = {
 				id: userMessageId,
 				parentId: parentMessage ? parentMessage.id : null,
