@@ -6,6 +6,8 @@
 	import { onMount, tick, getContext, createEventDispatcher, onDestroy } from 'svelte';
 	const dispatch = createEventDispatcher();
 
+	import { imageGenerations } from '$lib/apis/images';
+
 	import {
 		type Model,
 		mobile,
@@ -46,6 +48,7 @@
 
 	export let onChange: Function = () => {};
 	export let createMessagePair: Function;
+	export let createMessageWithImagesPair: Function;
 	export let stopResponse: Function;
 
 	export let autoScroll = false;
@@ -85,6 +88,8 @@
 
 	let inputFiles;
 	let dragged = false;
+
+	let generatingImage = false;
 
 	let user = null;
 	export let placeholder = '';

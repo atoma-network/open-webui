@@ -21,6 +21,7 @@
 	export let transparentBackground = false;
 
 	export let createMessagePair: Function;
+	export let createMessageWithImagesPair: Function;
 	export let stopResponse: Function;
 
 	export let autoScroll = false;
