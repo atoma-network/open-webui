@@ -54,4 +54,38 @@ if [ -n "$SPACE_ID" ]; then
   export WEBUI_URL=${SPACE_HOST}
 fi
 
-WEBUI_SECRET_KEY="$WEBUI_SECRET_KEY" exec uvicorn open_webui.main:app --host "$HOST" --port "$PORT" --forwarded-allow-ips '*'
+# SSL Configuration
+DOMAIN="utopia.xyz"
+SSL_CERT="/etc/letsencrypt/live/$DOMAIN/fullchain.pem"
+SSL_KEY="/etc/letsencrypt/live/$DOMAIN/privkey.pem"
+
+# Check if certificates exist, if not generate them
+if [ ! -f "$SSL_CERT" ] || [ ! -f "$SSL_KEY" ]; then
+    echo "SSL certificates not found, attempting to generate with certbot..."
+    # Check if we're running as root (required for certbot)
+    if [ "$(id -u)" -eq 0 ]; then
+        certbot certonly --standalone \
+            --non-interactive \
+            --agree-tos \
+            --email admin@$DOMAIN \
+            -d $DOMAIN \
+            --keep-until-expiring
+    fi
+fi
+
+# Start uvicorn with SSL if certificates exist
+if [ -f "$SSL_CERT" ] && [ -f "$SSL_KEY" ]; then
+    echo "Starting uvicorn with HTTPS..."
+    WEBUI_SECRET_KEY="$WEBUI_SECRET_KEY" exec uvicorn open_webui.main:app \
+        --host "$HOST" \
+        --port "$PORT" \
+        --ssl-keyfile "$SSL_KEY" \
+        --ssl-certfile "$SSL_CERT" \
+        --forwarded-allow-ips '*'
+else
+    echo "Starting uvicorn without HTTPS..."
+    WEBUI_SECRET_KEY="$WEBUI_SECRET_KEY" exec uvicorn open_webui.main:app \
+        --host "$HOST" \
+        --port "$PORT" \
+        --forwarded-allow-ips '*'
+fi
