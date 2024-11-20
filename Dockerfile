@@ -124,6 +124,13 @@ RUN if [ "$USE_OLLAMA" = "true" ]; then \
     rm -rf /var/lib/apt/lists/*; \
     fi
 
+# install certbot
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends certbot && \
+    rm -rf /var/lib/apt/lists/* && \
+    mkdir -p /etc/letsencrypt && \
+    chown -R $UID:$GID /etc/letsencrypt
+
 # install python dependencies
 COPY --chown=$UID:$GID ./backend/requirements.txt ./requirements.txt
 
