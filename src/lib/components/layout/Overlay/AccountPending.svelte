@@ -32,11 +32,13 @@
 					)}
 				</div>
 
+				<!-- 
 				{#if adminDetails}
 					<div class="mt-4 text-sm font-medium text-center">
 						<div>{$i18n.t('Admin')}: {adminDetails.name} ({adminDetails.email})</div>
 					</div>
 				{/if}
+				 -->
 
 				<div class=" mt-6 mx-auto relative group w-fit">
 					<button
