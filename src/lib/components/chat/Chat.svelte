@@ -1260,6 +1260,8 @@
 		if (autoScroll) {
 			scrollToBottom();
 		}
+	};
+	
 	const createMessageWithImagesPair = async (userPrompt, files) => {
 		prompt = '';
 		if (selectedModels.length === 0) {

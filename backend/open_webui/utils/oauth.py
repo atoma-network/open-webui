@@ -1,3 +1,4 @@
+# type:ignore
 import base64
 import logging
 import mimetypes
@@ -170,7 +171,7 @@ class OAuthManager:
                     id=group_model.id, form_data=update_form, overwrite=False
                 )
 
-    async def handle_login(self, provider, request):
+    async def handle_login(self, provider, nonce, request):
         if provider not in OAUTH_PROVIDERS:
             raise HTTPException(404)
         # If the provider has a custom redirect URL, use that, otherwise automatically generate one
@@ -180,7 +181,7 @@ class OAuthManager:
         client = self.get_client(provider)
         if client is None:
             raise HTTPException(404)
-        return await client.authorize_redirect(request, redirect_uri)
+        return await client.authorize_redirect(request, redirect_uri, nonce=nonce)
 
     async def handle_callback(self, provider, request, response):
         if provider not in OAUTH_PROVIDERS:
@@ -188,6 +189,7 @@ class OAuthManager:
         client = self.get_client(provider)
         try:
             token = await client.authorize_access_token(request)
+            id_token = token["id_token"]
         except Exception as e:
             log.warning(f"OAuth callback error: {e}")
             raise HTTPException(400, detail=ERROR_MESSAGES.INVALID_CRED)
@@ -337,7 +339,7 @@ class OAuthManager:
                 secure=WEBUI_SESSION_COOKIE_SECURE,
             )
         # Redirect back to the frontend with the JWT token
-        redirect_url = f"{request.base_url}auth#token={jwt_token}"
+        redirect_url = f"{request.base_url}auth#token={jwt_token}&id_token={id_token}"
         return RedirectResponse(url=redirect_url, headers=response.headers)
 
 

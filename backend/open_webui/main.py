@@ -1,3 +1,4 @@
+# type:ignore
 import asyncio
 import inspect
 import json
@@ -199,6 +200,7 @@ from open_webui.config import (
     JWT_EXPIRES_IN,
     ENABLE_SIGNUP,
     ENABLE_LOGIN_FORM,
+    ENABLE_SUI_LOGIN,
     ENABLE_API_KEY,
     ENABLE_API_KEY_ENDPOINT_RESTRICTIONS,
     API_KEY_ALLOWED_ENDPOINTS,
@@ -397,6 +399,7 @@ app.state.OPENAI_MODELS = {}
 app.state.config.WEBUI_URL = WEBUI_URL
 app.state.config.ENABLE_SIGNUP = ENABLE_SIGNUP
 app.state.config.ENABLE_LOGIN_FORM = ENABLE_LOGIN_FORM
+app.state.config.ENABLE_SUI_LOGIN = ENABLE_SUI_LOGIN
 
 app.state.config.ENABLE_API_KEY = ENABLE_API_KEY
 app.state.config.ENABLE_API_KEY_ENDPOINT_RESTRICTIONS = ENABLE_API_KEY_ENDPOINT_RESTRICTIONS
@@ -1052,9 +1055,9 @@ if len(OAUTH_PROVIDERS) > 0:
     )
 
 
-@app.get("/oauth/{provider}/login")
-async def oauth_login(provider: str, request: Request):
-    return await oauth_manager.handle_login(provider, request)
+@app.get("/oauth/{provider}/login/{nonce}")
+async def oauth_login(provider: str, nonce: str, request: Request):
+    return await oauth_manager.handle_login(provider, nonce, request)
 
 
 # OAuth login logic is as follows:

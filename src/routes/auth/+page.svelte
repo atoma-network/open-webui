@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { toast } from 'svelte-sonner';
 
 	import { onMount, getContext } from 'svelte';
@@ -375,6 +375,10 @@
 							</div>
 						</form>
 
+						{#if $config?.features.enable_sui_login}
+							<div id="react-root" bind:this={reactRootRef} />
+						{/if}
+
 						{#if Object.keys($config?.oauth?.providers ?? {}).length > 0}
 							<div class="inline-flex items-center justify-center w-full">
 								<hr class="w-32 h-px my-4 border-0 dark:bg-gray-100/10 bg-gray-700/10" />
@@ -392,7 +396,7 @@
 									<button
 										class="flex justify-center items-center bg-gray-700/5 hover:bg-gray-700/10 dark:bg-gray-100/5 dark:hover:bg-gray-100/10 dark:text-gray-300 dark:hover:text-white transition w-full rounded-full font-medium text-sm py-2.5"
 										on:click={() => {
-											window.location.href = `${WEBUI_BASE_URL}/oauth/google/login`;
+											window.location.href = `${WEBUI_BASE_URL}/oauth/google/login/${nonce}`;
 										}}
 									>
 										<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" class="size-6 mr-3">

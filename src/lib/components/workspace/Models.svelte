@@ -503,8 +503,9 @@
 			</a>
 		</div>
 	{/if}
+	 -->
 {:else}
 	<div class="w-full h-full flex justify-center items-center">
 		<Spinner />
 	</div>
-{/if} -->
+{/if}
